@@ -1,10 +1,6 @@
 #!/bin/python3
 
-import math
 import os
-import random
-import re
-import sys
 
 #
 # Complete the 'matchingStrings' function below.
@@ -15,14 +11,15 @@ import sys
 #  2. STRING_ARRAY queries
 #
 
+
 def matchingStrings(strings, queries):
     # Write your code here
     pass
 
-if __name__ == '__main__':
 
-    os.environ['OUTPUT_PATH'] = "in1.out"
-    fptr = open(os.environ['OUTPUT_PATH'], 'w')
+if __name__ == "__main__":
+    os.environ["OUTPUT_PATH"] = "in1.out"
+    fptr = open(os.environ["OUTPUT_PATH"], "w")
 
     strings_count = int(input().strip())
 
@@ -42,7 +39,7 @@ if __name__ == '__main__':
 
     res = matchingStrings(strings, queries)
 
-    fptr.write('\n'.join(map(str, res)))
-    fptr.write('\n')
+    fptr.write("\n".join(map(str, res)))
+    fptr.write("\n")
 
     fptr.close()
