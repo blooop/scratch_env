@@ -3,6 +3,7 @@ import rerun as rr
 from typing import List
 import numpy as np
 
+
 class Solution:
     def searchMatrix(self, matrix: List[List[int]], target: int) -> bool:
         rows = [m[0] for m in matrix]
@@ -23,23 +24,21 @@ class Solution:
         left = 0
         right = len(lst) - 1
 
-        i =0
+        i = 0
 
         print(lst)
         while left <= right:
-            i+=1
+            i += 1
             piv = (left + right) // 2
             val = lst[piv]
 
-            disp = [np.nan]*len(lst)
-            disp[left]=-1
-            disp[piv]=0
-            disp[right]=1
-            rr.log("trans",rr.Transform3D([0,0,i]))
+            disp = [np.nan] * len(lst)
+            disp[left] = -1
+            disp[piv] = 0
+            disp[right] = 1
+            rr.log("trans", rr.Transform3D([0, 0, i]))
             rr.log("trans/array", rr.Tensor(np.asarray(lst)))
             rr.log("trans/ptrs", rr.Tensor(np.asarray(disp)))
-
-
 
             print("left", left)
             print("piv", piv)
