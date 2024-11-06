@@ -1,4 +1,4 @@
-# python_template
+# scratch_env
 A template repo for python projects that is set up using [pixi](https://pixi.sh). 
 
 This has basic setup for
