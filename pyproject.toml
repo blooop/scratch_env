@@ -31,6 +31,8 @@ python = "3.13.*"
 
 [tool.pixi.pypi-dependencies]
 python_template = { path = ".", editable = true }
+numpy = "*"
+# rurun-sdk="*"
 
 [project.optional-dependencies]
 test = [
