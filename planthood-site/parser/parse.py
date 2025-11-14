@@ -28,6 +28,7 @@ MAX_RETRIES = int(os.getenv("MAX_RETRIES", "3"))
 @dataclass
 class RecipeStep:
     """Structured recipe step"""
+
     id: str
     raw_text: str
     label: str
@@ -51,6 +52,7 @@ class RecipeStep:
 @dataclass
 class ParsedRecipe:
     """Recipe with parsed steps"""
+
     id: str
     title: str
     source_url: str
@@ -83,7 +85,7 @@ class RecipeCache:
 
         if cache_file.exists():
             try:
-                with open(cache_file, 'r', encoding='utf-8') as f:
+                with open(cache_file, "r", encoding="utf-8") as f:
                     return json.load(f)
             except Exception as e:
                 print(f"Cache read error: {e}")
@@ -96,7 +98,7 @@ class RecipeCache:
         cache_file = self.cache_dir / f"{cache_key}.json"
 
         try:
-            with open(cache_file, 'w', encoding='utf-8') as f:
+            with open(cache_file, "w", encoding="utf-8") as f:
                 json.dump(steps, f, indent=2, ensure_ascii=False)
         except Exception as e:
             print(f"Cache write error: {e}")
@@ -152,8 +154,8 @@ Parse this into structured steps as JSON array."""
 
     def parse_recipe_steps(self, recipe: Dict) -> List[RecipeStep]:
         """Parse recipe method into structured steps"""
-        recipe_id = recipe['id']
-        method = recipe.get('method', '').strip()
+        recipe_id = recipe["id"]
+        method = recipe.get("method", "").strip()
 
         if not method:
             print(f"⚠️  No method text for {recipe_id}, skipping")
@@ -166,9 +168,9 @@ Parse this into structured steps as JSON array."""
             return [RecipeStep(**step) for step in cached_steps]
 
         # Build prompt
-        ingredients_text = '\n'.join(f"- {ing}" for ing in recipe.get('ingredients', []))
+        ingredients_text = "\n".join(f"- {ing}" for ing in recipe.get("ingredients", []))
         prompt = self.USER_PROMPT_TEMPLATE.format(
-            title=recipe['title'],
+            title=recipe["title"],
             ingredients=ingredients_text or "(not provided)",
             method=method,
         )
@@ -179,10 +181,10 @@ Parse this into structured steps as JSON array."""
 
             # Extract JSON from response (in case LLM adds extra text)
             response = response.strip()
-            if response.startswith('```'):
+            if response.startswith("```"):
                 # Remove markdown code blocks
-                lines = response.split('\n')
-                response = '\n'.join(line for line in lines if not line.startswith('```'))
+                lines = response.split("\n")
+                response = "\n".join(line for line in lines if not line.startswith("```"))
 
             steps_data = json.loads(response)
 
@@ -190,15 +192,15 @@ Parse this into structured steps as JSON array."""
             steps = []
             for i, step_data in enumerate(steps_data, 1):
                 # Ensure ID is set
-                if 'id' not in step_data:
-                    step_data['id'] = f"step-{i}"
+                if "id" not in step_data:
+                    step_data["id"] = f"step-{i}"
 
                 # Ensure raw_text is set
-                if 'raw_text' not in step_data:
-                    step_data['raw_text'] = step_data.get('label', '')
+                if "raw_text" not in step_data:
+                    step_data["raw_text"] = step_data.get("label", "")
 
                 # Validate required fields
-                required = ['label', 'type', 'estimated_duration_minutes']
+                required = ["label", "type", "estimated_duration_minutes"]
                 if not all(k in step_data for k in required):
                     print(f"⚠️  Step {i} missing required fields, skipping")
                     continue
@@ -227,13 +229,13 @@ Parse this into structured steps as JSON array."""
             steps = self.parse_recipe_steps(recipe)
 
             parsed_recipe = ParsedRecipe(
-                id=recipe['id'],
-                title=recipe['title'],
-                source_url=recipe['source_url'],
-                week_label=recipe.get('week_label'),
-                category=recipe.get('category'),
-                ingredients=recipe.get('ingredients', []),
-                nutrition=recipe.get('nutrition'),
+                id=recipe["id"],
+                title=recipe["title"],
+                source_url=recipe["source_url"],
+                week_label=recipe.get("week_label"),
+                category=recipe.get("category"),
+                ingredients=recipe.get("ingredients", []),
+                nutrition=recipe.get("nutrition"),
                 steps=steps,
             )
             parsed_recipes.append(parsed_recipe)
@@ -254,7 +256,7 @@ def main():
         print("Run the scraper first: npm run scrape")
         return
 
-    with open(raw_recipes_path, 'r', encoding='utf-8') as f:
+    with open(raw_recipes_path, "r", encoding="utf-8") as f:
         raw_recipes = json.load(f)
 
     print(f"Loaded {len(raw_recipes)} raw recipes")
@@ -265,7 +267,7 @@ def main():
 
     # Save parsed recipes
     output_path = DATA_DIR / "recipes_parsed.json"
-    with open(output_path, 'w', encoding='utf-8') as f:
+    with open(output_path, "w", encoding="utf-8") as f:
         json.dump(
             [asdict(r) for r in parsed_recipes],
             f,

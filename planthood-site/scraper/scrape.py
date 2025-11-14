@@ -27,6 +27,7 @@ DATA_DIR = os.path.join(os.path.dirname(os.path.dirname(__file__)), "data")
 @dataclass
 class Recipe:
     """Structured recipe data"""
+
     id: str
     title: str
     source_url: str
@@ -65,7 +66,7 @@ class PlanthoodScraper:
             response.raise_for_status()
             self.visited_urls.add(url)
             time.sleep(REQUEST_DELAY)
-            return BeautifulSoup(response.text, 'lxml')
+            return BeautifulSoup(response.text, "lxml")
         except Exception as e:
             print(f"Error fetching {url}: {e}")
             return None
@@ -79,10 +80,10 @@ class PlanthoodScraper:
         recipe_urls = set()
 
         # Find all product links in the collection
-        for link in soup.find_all('a', href=True):
-            href = link['href']
+        for link in soup.find_all("a", href=True):
+            href = link["href"]
             # Look for product pages (recipes)
-            if '/products/' in href:
+            if "/products/" in href:
                 full_url = urljoin(self.BASE_URL, href)
                 recipe_urls.add(full_url)
 
@@ -97,17 +98,21 @@ class PlanthoodScraper:
 
         try:
             # Extract recipe ID from URL
-            recipe_id = url.split('/products/')[-1].split('?')[0]
+            recipe_id = url.split("/products/")[-1].split("?")[0]
 
             # Extract title
-            title_elem = soup.find('h1', class_='product-single__title') or soup.find('h1')
-            title = title_elem.get_text(strip=True) if title_elem else recipe_id.replace('-', ' ').title()
+            title_elem = soup.find("h1", class_="product-single__title") or soup.find("h1")
+            title = (
+                title_elem.get_text(strip=True)
+                if title_elem
+                else recipe_id.replace("-", " ").title()
+            )
 
             # Extract week label (if present in product description or tags)
             week_label = None
             week_patterns = [
-                r'(?:MENU|Delivery)\s*(?:\||w/c)\s*(?:DELIVERED\s*)?([A-Z][a-z]+\s+\d{1,2}(?:st|nd|rd|th)?\s*[A-Z][a-z]+\s*\d{4})',
-                r'(?:Week of|w/c)\s+(\d{1,2}/\d{1,2}/\d{4})',
+                r"(?:MENU|Delivery)\s*(?:\||w/c)\s*(?:DELIVERED\s*)?([A-Z][a-z]+\s+\d{1,2}(?:st|nd|rd|th)?\s*[A-Z][a-z]+\s*\d{4})",
+                r"(?:Week of|w/c)\s+(\d{1,2}/\d{1,2}/\d{4})",
             ]
             page_text = soup.get_text()
             for pattern in week_patterns:
@@ -118,57 +123,69 @@ class PlanthoodScraper:
 
             # Extract category (Detox/Nourish/Feast) if mentioned
             category = None
-            for cat in ['Detox', 'Nourish', 'Feast', 'Cleanse']:
+            for cat in ["Detox", "Nourish", "Feast", "Cleanse"]:
                 if cat.lower() in page_text.lower():
                     category = cat
                     break
 
             # Extract ingredients
             ingredients = []
-            ingredients_section = soup.find(['div', 'section'], class_=lambda x: x and 'ingredient' in x.lower()) if soup else None
+            ingredients_section = (
+                soup.find(["div", "section"], class_=lambda x: x and "ingredient" in x.lower())
+                if soup
+                else None
+            )
             if not ingredients_section:
                 # Try alternative selectors
-                for header in soup.find_all(['h2', 'h3', 'strong']):
-                    if 'ingredient' in header.get_text().lower():
-                        ingredients_section = header.find_next(['ul', 'div'])
+                for header in soup.find_all(["h2", "h3", "strong"]):
+                    if "ingredient" in header.get_text().lower():
+                        ingredients_section = header.find_next(["ul", "div"])
                         break
 
             if ingredients_section:
-                for li in ingredients_section.find_all('li'):
+                for li in ingredients_section.find_all("li"):
                     ing_text = li.get_text(strip=True)
                     if ing_text:
                         ingredients.append(ing_text)
 
             # Extract method/instructions
             method = ""
-            method_section = soup.find(['div', 'section'], class_=lambda x: x and ('method' in str(x).lower() or 'instruction' in str(x).lower()))
+            method_section = soup.find(
+                ["div", "section"],
+                class_=lambda x: x
+                and ("method" in str(x).lower() or "instruction" in str(x).lower()),
+            )
             if not method_section:
                 # Try finding by header
-                for header in soup.find_all(['h2', 'h3', 'strong']):
+                for header in soup.find_all(["h2", "h3", "strong"]):
                     header_text = header.get_text().lower()
-                    if 'method' in header_text or 'instruction' in header_text or 'how to' in header_text:
+                    if (
+                        "method" in header_text
+                        or "instruction" in header_text
+                        or "how to" in header_text
+                    ):
                         # Get the next sibling(s) until next header
                         method_parts = []
                         for sibling in header.find_next_siblings():
-                            if sibling.name in ['h2', 'h3']:
+                            if sibling.name in ["h2", "h3"]:
                                 break
                             text = sibling.get_text(strip=True)
                             if text:
                                 method_parts.append(text)
-                        method = '\n'.join(method_parts)
+                        method = "\n".join(method_parts)
                         break
             else:
-                method = method_section.get_text(separator='\n', strip=True)
+                method = method_section.get_text(separator="\n", strip=True)
 
             # Extract nutrition info
             nutrition = {}
             nutrition_patterns = {
-                'calories': r'(\d+)\s*kcal',
-                'protein_g': r'Protein[:\s]*(\d+\.?\d*)g',
-                'fat_g': r'Fat[:\s]*(\d+\.?\d*)g',
-                'carbs_g': r'Carb(?:ohydrate)?s?[:\s]*(\d+\.?\d*)g',
-                'fibre_g': r'Fibre[:\s]*(\d+\.?\d*)g',
-                'salt_g': r'Salt[:\s]*(\d+\.?\d*)g',
+                "calories": r"(\d+)\s*kcal",
+                "protein_g": r"Protein[:\s]*(\d+\.?\d*)g",
+                "fat_g": r"Fat[:\s]*(\d+\.?\d*)g",
+                "carbs_g": r"Carb(?:ohydrate)?s?[:\s]*(\d+\.?\d*)g",
+                "fibre_g": r"Fibre[:\s]*(\d+\.?\d*)g",
+                "salt_g": r"Salt[:\s]*(\d+\.?\d*)g",
             }
 
             for key, pattern in nutrition_patterns.items():
@@ -187,7 +204,7 @@ class PlanthoodScraper:
                 category=category,
                 ingredients=ingredients,
                 method=method,
-                nutrition=nutrition if nutrition else None
+                nutrition=nutrition if nutrition else None,
             )
 
             print(f"Extracted recipe: {title}")
@@ -225,13 +242,8 @@ def main():
 
     # Save to JSON
     output_path = os.path.join(DATA_DIR, "raw_recipes.json")
-    with open(output_path, 'w', encoding='utf-8') as f:
-        json.dump(
-            [asdict(r) for r in recipes],
-            f,
-            indent=2,
-            ensure_ascii=False
-        )
+    with open(output_path, "w", encoding="utf-8") as f:
+        json.dump([asdict(r) for r in recipes], f, indent=2, ensure_ascii=False)
 
     print(f"\n{'=' * 60}")
     print(f"Scraped {len(recipes)} recipes")

@@ -17,6 +17,7 @@ DATA_DIR = Path(__file__).parent.parent / "data"
 @dataclass
 class ScheduledStep:
     """Recipe step with computed timeline"""
+
     id: str
     raw_text: str
     label: str
@@ -34,6 +35,7 @@ class ScheduledStep:
 @dataclass
 class ScheduledRecipe:
     """Recipe with scheduled steps"""
+
     id: str
     title: str
     source_url: str
@@ -60,17 +62,17 @@ class RecipeScheduler:
         # Build adjacency list and in-degree map
         graph = defaultdict(list)
         in_degree = defaultdict(int)
-        all_step_ids = {step['id'] for step in steps}
+        all_step_ids = {step["id"] for step in steps}
 
         # Initialize in-degree for all steps
         for step in steps:
-            if step['id'] not in in_degree:
-                in_degree[step['id']] = 0
+            if step["id"] not in in_degree:
+                in_degree[step["id"]] = 0
 
         # Build graph
         for step in steps:
-            step_id = step['id']
-            for dep in step.get('requires', []):
+            step_id = step["id"]
+            for dep in step.get("requires", []):
                 if dep in all_step_ids:
                     graph[dep].append(step_id)
                     in_degree[step_id] += 1
@@ -92,7 +94,7 @@ class RecipeScheduler:
         if len(sorted_steps) != len(all_step_ids):
             print(f"⚠️  Warning: Cycle detected in dependencies. Using fallback ordering.")
             # Fallback: use original order
-            return [step['id'] for step in steps]
+            return [step["id"] for step in steps]
 
         return sorted_steps
 
@@ -105,7 +107,7 @@ class RecipeScheduler:
             return []
 
         # Create step lookup
-        step_lookup = {step['id']: step for step in steps}
+        step_lookup = {step["id"]: step for step in steps}
 
         # Get topological order
         sorted_ids = self.topological_sort(steps)
@@ -118,11 +120,11 @@ class RecipeScheduler:
 
         for step_id in sorted_ids:
             step = step_lookup[step_id]
-            duration = step.get('estimated_duration_minutes', 0)
+            duration = step.get("estimated_duration_minutes", 0)
 
             # Compute earliest start time based on dependencies
             earliest_start = 0
-            for dep_id in step.get('requires', []):
+            for dep_id in step.get("requires", []):
                 if dep_id in step_end_times:
                     earliest_start = max(earliest_start, step_end_times[dep_id])
 
@@ -131,18 +133,18 @@ class RecipeScheduler:
 
             # Store scheduled step
             scheduled_step = ScheduledStep(
-                id=step['id'],
-                raw_text=step.get('raw_text', ''),
-                label=step['label'],
-                type=step['type'],
+                id=step["id"],
+                raw_text=step.get("raw_text", ""),
+                label=step["label"],
+                type=step["type"],
                 duration_min=duration,
                 start_min=start_time,
                 end_min=end_time,
-                requires=step.get('requires', []),
-                can_overlap_with=step.get('can_overlap_with', []),
-                equipment=step.get('equipment', []),
-                temperature_c=step.get('temperature_c'),
-                notes=step.get('notes', ''),
+                requires=step.get("requires", []),
+                can_overlap_with=step.get("can_overlap_with", []),
+                equipment=step.get("equipment", []),
+                temperature_c=step.get("temperature_c"),
+                notes=step.get("notes", ""),
             )
             scheduled_steps.append(scheduled_step)
             step_end_times[step_id] = end_time
@@ -151,7 +153,7 @@ class RecipeScheduler:
 
     def schedule_recipe(self, recipe: Dict) -> ScheduledRecipe:
         """Schedule a single recipe"""
-        steps = recipe.get('steps', [])
+        steps = recipe.get("steps", [])
 
         # Convert step dicts to proper format if needed
         step_dicts = []
@@ -169,18 +171,16 @@ class RecipeScheduler:
 
         # Active time = sum of all non-overlapping prep/cook steps
         # Simplified: sum of all prep and some cook steps
-        active_time = sum(
-            s.duration_min for s in scheduled_steps if s.type in ['prep', 'finish']
-        )
+        active_time = sum(s.duration_min for s in scheduled_steps if s.type in ["prep", "finish"])
 
         return ScheduledRecipe(
-            id=recipe['id'],
-            title=recipe['title'],
-            source_url=recipe['source_url'],
-            week_label=recipe.get('week_label'),
-            category=recipe.get('category'),
-            ingredients=recipe.get('ingredients', []),
-            nutrition=recipe.get('nutrition'),
+            id=recipe["id"],
+            title=recipe["title"],
+            source_url=recipe["source_url"],
+            week_label=recipe.get("week_label"),
+            category=recipe.get("category"),
+            ingredients=recipe.get("ingredients", []),
+            nutrition=recipe.get("nutrition"),
             steps=scheduled_steps,
             total_time_min=total_time,
             active_time_min=active_time,
@@ -214,7 +214,7 @@ def main():
         print("Run the parser first: npm run parse")
         return
 
-    with open(parsed_recipes_path, 'r', encoding='utf-8') as f:
+    with open(parsed_recipes_path, "r", encoding="utf-8") as f:
         parsed_recipes = json.load(f)
 
     print(f"Loaded {len(parsed_recipes)} parsed recipes")
@@ -225,7 +225,7 @@ def main():
 
     # Save scheduled recipes
     output_path = DATA_DIR / "recipes_with_schedule.json"
-    with open(output_path, 'w', encoding='utf-8') as f:
+    with open(output_path, "w", encoding="utf-8") as f:
         json.dump(
             [asdict(r) for r in scheduled_recipes],
             f,

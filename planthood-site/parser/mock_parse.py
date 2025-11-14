@@ -16,6 +16,7 @@ DATA_DIR = Path(__file__).parent.parent / "data"
 @dataclass
 class RecipeStep:
     """Structured recipe step"""
+
     id: str
     raw_text: str
     label: str
@@ -31,6 +32,7 @@ class RecipeStep:
 @dataclass
 class ParsedRecipe:
     """Recipe with parsed steps"""
+
     id: str
     title: str
     source_url: str
@@ -50,7 +52,7 @@ class MockRecipeParser:
     def extract_steps_from_method(self, method: str) -> List[Dict]:
         """Extract steps from method text using simple sentence splitting"""
         # Split on sentence boundaries
-        sentences = re.split(r'(?<=[.!?])\s+', method)
+        sentences = re.split(r"(?<=[.!?])\s+", method)
 
         steps = []
         step_num = 1
@@ -61,14 +63,17 @@ class MockRecipeParser:
 
             # Determine step type
             step_type = "cook"
-            if any(word in sentence.lower() for word in ["preheat", "prepare", "rinse", "chop", "dice", "slice", "mince"]):
+            if any(
+                word in sentence.lower()
+                for word in ["preheat", "prepare", "rinse", "chop", "dice", "slice", "mince"]
+            ):
                 step_type = "prep"
             elif any(word in sentence.lower() for word in ["serve", "garnish", "plate", "drizzle"]):
                 step_type = "finish"
 
             # Extract duration
             duration = 10  # default
-            time_match = re.search(r'(\d+)[-–]?(\d+)?\s*(minute|min)', sentence.lower())
+            time_match = re.search(r"(\d+)[-–]?(\d+)?\s*(minute|min)", sentence.lower())
             if time_match:
                 if time_match.group(2):
                     # Range like "8-10 minutes"
@@ -78,7 +83,7 @@ class MockRecipeParser:
 
             # Extract temperature
             temp = None
-            temp_match = re.search(r'(\d+)\s*°C', sentence)
+            temp_match = re.search(r"(\d+)\s*°C", sentence)
             if temp_match:
                 temp = int(temp_match.group(1))
 
@@ -91,10 +96,10 @@ class MockRecipeParser:
 
             # Create step label (first 50 chars or until comma/period)
             label = sentence[:50]
-            if ',' in label:
-                label = label[:label.index(',')]
-            elif '.' in label:
-                label = label[:label.index('.')]
+            if "," in label:
+                label = label[: label.index(",")]
+            elif "." in label:
+                label = label[: label.index(".")]
 
             step = {
                 "id": f"step-{step_num}",
@@ -106,7 +111,7 @@ class MockRecipeParser:
                 "can_overlap_with": [],
                 "equipment": equipment,
                 "temperature_c": temp,
-                "notes": ""
+                "notes": "",
             }
 
             steps.append(step)
@@ -116,7 +121,7 @@ class MockRecipeParser:
 
     def parse_recipe(self, recipe: Dict) -> ParsedRecipe:
         """Parse a single recipe"""
-        method = recipe.get('method', '').strip()
+        method = recipe.get("method", "").strip()
         steps_data = []
 
         if method:
@@ -125,13 +130,13 @@ class MockRecipeParser:
         steps = [RecipeStep(**step) for step in steps_data]
 
         return ParsedRecipe(
-            id=recipe['id'],
-            title=recipe['title'],
-            source_url=recipe['source_url'],
-            week_label=recipe.get('week_label'),
-            category=recipe.get('category'),
-            ingredients=recipe.get('ingredients', []),
-            nutrition=recipe.get('nutrition'),
+            id=recipe["id"],
+            title=recipe["title"],
+            source_url=recipe["source_url"],
+            week_label=recipe.get("week_label"),
+            category=recipe.get("category"),
+            ingredients=recipe.get("ingredients", []),
+            nutrition=recipe.get("nutrition"),
             steps=steps,
         )
 
@@ -162,7 +167,7 @@ def main():
         print(f"❌ Error: {raw_recipes_path} not found")
         return
 
-    with open(raw_recipes_path, 'r', encoding='utf-8') as f:
+    with open(raw_recipes_path, "r", encoding="utf-8") as f:
         raw_recipes = json.load(f)
 
     print(f"Loaded {len(raw_recipes)} raw recipes\n")
@@ -173,7 +178,7 @@ def main():
 
     # Save parsed recipes
     output_path = DATA_DIR / "recipes_parsed.json"
-    with open(output_path, 'w', encoding='utf-8') as f:
+    with open(output_path, "w", encoding="utf-8") as f:
         json.dump(
             [asdict(r) for r in parsed_recipes],
             f,
