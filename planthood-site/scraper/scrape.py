@@ -94,10 +94,7 @@ class PlanthoodScraper:
         """Extract method text by finding method/instruction headers"""
         for header in soup.find_all(["h2", "h3", "strong"]):
             header_text = header.get_text().lower()
-            if not any(
-                keyword in header_text
-                for keyword in ["method", "instruction", "how to"]
-            ):
+            if not any(keyword in header_text for keyword in ["method", "instruction", "how to"]):
                 continue
 
             # Get the next sibling(s) until next header
