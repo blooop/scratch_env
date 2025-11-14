@@ -26,7 +26,7 @@ export default function GanttChart({ steps }: GanttChartProps) {
   }
 
   const maxTime = Math.max(...steps.map(s => s.end_min), 0);
-  const timeMarks = [];
+  const timeMarks: number[] = [];
   const markInterval = 5;
   for (let i = 0; i <= maxTime; i += markInterval) {
     timeMarks.push(i);
