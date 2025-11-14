@@ -18,12 +18,10 @@ class LLMProvider(ABC):
     @abstractmethod
     def generate(self, prompt: str, system_prompt: Optional[str] = None) -> str:
         """Generate text from prompt"""
-        pass
 
     @abstractmethod
     def get_name(self) -> str:
         """Get provider name"""
-        pass
 
 
 class OpenAIProvider(LLMProvider):
@@ -135,4 +133,4 @@ def get_llm_provider(
     try:
         return providers[provider_name](api_key=api_key, model=model)
     except Exception as e:
-        raise RuntimeError(f"Failed to initialize {provider_name} provider: {e}")
+        raise RuntimeError(f"Failed to initialize {provider_name} provider: {e}") from e

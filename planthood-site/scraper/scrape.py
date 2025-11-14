@@ -10,7 +10,7 @@ import re
 import time
 from dataclasses import dataclass, asdict
 from typing import List, Optional, Dict
-from urllib.parse import urljoin, urlparse
+from urllib.parse import urljoin
 
 import requests
 from bs4 import BeautifulSoup
@@ -90,6 +90,27 @@ class PlanthoodScraper:
         print(f"Discovered {len(recipe_urls)} recipe URLs")
         return list(recipe_urls)
 
+    def _extract_method_from_headers(self, soup: BeautifulSoup) -> str:
+        """Extract method text by finding method/instruction headers"""
+        for header in soup.find_all(["h2", "h3", "strong"]):
+            header_text = header.get_text().lower()
+            if not any(
+                keyword in header_text
+                for keyword in ["method", "instruction", "how to"]
+            ):
+                continue
+
+            # Get the next sibling(s) until next header
+            method_parts = []
+            for sibling in header.find_next_siblings():
+                if sibling.name in ["h2", "h3"]:
+                    break
+                text = sibling.get_text(strip=True)
+                if text:
+                    method_parts.append(text)
+            return "\n".join(method_parts)
+        return ""
+
     def extract_recipe(self, url: str) -> Optional[Recipe]:
         """Extract recipe data from a recipe page"""
         soup = self.fetch_page(url)
@@ -155,27 +176,11 @@ class PlanthoodScraper:
                 class_=lambda x: x
                 and ("method" in str(x).lower() or "instruction" in str(x).lower()),
             )
-            if not method_section:
-                # Try finding by header
-                for header in soup.find_all(["h2", "h3", "strong"]):
-                    header_text = header.get_text().lower()
-                    if (
-                        "method" in header_text
-                        or "instruction" in header_text
-                        or "how to" in header_text
-                    ):
-                        # Get the next sibling(s) until next header
-                        method_parts = []
-                        for sibling in header.find_next_siblings():
-                            if sibling.name in ["h2", "h3"]:
-                                break
-                            text = sibling.get_text(strip=True)
-                            if text:
-                                method_parts.append(text)
-                        method = "\n".join(method_parts)
-                        break
-            else:
+            if method_section:
                 method = method_section.get_text(separator="\n", strip=True)
+            else:
+                # Try finding by header
+                method = self._extract_method_from_headers(soup)
 
             # Extract nutrition info
             nutrition = {}

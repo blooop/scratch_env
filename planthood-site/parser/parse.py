@@ -9,12 +9,16 @@ import json
 import os
 from dataclasses import dataclass, asdict
 from pathlib import Path
-from typing import List, Optional, Dict, Any
+from typing import List, Optional, Dict
 
 from dotenv import load_dotenv
 from tenacity import retry, stop_after_attempt, wait_exponential
 
-from llm_providers import get_llm_provider
+try:
+    from .llm_providers import get_llm_provider  # pylint: disable=import-error,deprecated-module
+except ImportError:
+    # Fallback for running as script
+    from llm_providers import get_llm_provider  # type: ignore # pylint: disable=import-error
 
 load_dotenv()
 

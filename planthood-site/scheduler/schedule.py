@@ -8,7 +8,7 @@ import json
 from collections import defaultdict, deque
 from dataclasses import dataclass, asdict
 from pathlib import Path
-from typing import List, Dict, Set, Optional
+from typing import List, Dict, Optional
 
 
 DATA_DIR = Path(__file__).parent.parent / "data"
@@ -92,7 +92,7 @@ class RecipeScheduler:
 
         # Check for cycles
         if len(sorted_steps) != len(all_step_ids):
-            print(f"⚠️  Warning: Cycle detected in dependencies. Using fallback ordering.")
+            print("⚠️  Warning: Cycle detected in dependencies. Using fallback ordering.")
             # Fallback: use original order
             return [step["id"] for step in steps]
 
