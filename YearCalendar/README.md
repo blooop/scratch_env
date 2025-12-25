@@ -23,7 +23,19 @@ A modern Android app that displays your Google Calendar in an elegant year view 
   - BuildConfig for API keys (not committed to version control)
   - Secure credential management with MasterKey encryption
 
+## Quick Start - Get the APK
+
+**Don't have a PC?** No problem! APKs are automatically built via GitHub Actions.
+
+👉 **[See INSTALL_APK.md](INSTALL_APK.md) for installation instructions**
+
+The APK is built automatically on every push. Download it from:
+- GitHub Actions: `https://github.com/blooop/scratch_env/actions`
+- Look for **year-calendar-debug-apk** artifact
+
 ## Setup Instructions
+
+### For Developers
 
 ### Prerequisites
 
