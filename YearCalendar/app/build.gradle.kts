@@ -22,7 +22,7 @@ android {
         }
 
         // Load OAuth credentials from local.properties for security
-        val localProperties = org.jetbrains.kotlin.konan.properties.Properties()
+        val localProperties = java.util.Properties()
         val localPropertiesFile = rootProject.file("local.properties")
         if (localPropertiesFile.exists()) {
             localPropertiesFile.inputStream().use { localProperties.load(it) }

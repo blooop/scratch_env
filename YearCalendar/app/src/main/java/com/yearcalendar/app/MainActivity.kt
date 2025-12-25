@@ -11,15 +11,20 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.yearcalendar.app.auth.GoogleAuthManager
 import com.yearcalendar.app.data.AuthState
 import com.yearcalendar.app.ui.screens.CalendarScreen
 import com.yearcalendar.app.ui.screens.SignInScreen
 import com.yearcalendar.app.ui.theme.YearCalendarTheme
 import com.yearcalendar.app.viewmodel.CalendarViewModel
 import dagger.hilt.android.AndroidEntryPoint
+import javax.inject.Inject
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
+
+    @Inject
+    lateinit var authManager: GoogleAuthManager
 
     private val signInLauncher = registerForActivityResult(
         ActivityResultContracts.StartActivityForResult()
@@ -76,10 +81,6 @@ class MainActivity : ComponentActivity() {
     }
 
     private fun startSignIn() {
-        val authManager = (application as YearCalendarApplication).let {
-            // Get auth manager through Hilt
-            com.yearcalendar.app.auth.GoogleAuthManager(this)
-        }
         signInLauncher.launch(authManager.getSignInIntent())
     }
 }
