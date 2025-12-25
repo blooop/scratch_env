@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Year Calendar</string>
+    <string name="sign_in">Sign in with Google</string>
+    <string name="sign_out">Sign Out</string>
+    <string name="loading">Loading…</string>
+    <string name="error_sign_in">Failed to sign in. Please try again.</string>
+    <string name="error_loading_events">Failed to load calendar events</string>
+    <string name="retry">Retry</string>
+    <string name="zoom_in">Zoom In</string>
+    <string name="zoom_out">Zoom Out</string>
+    <string name="reset_zoom">Reset Zoom</string>
+</resources>
