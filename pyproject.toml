@@ -31,6 +31,14 @@ cmake = "*"
 ninja = "*"
 pkg-config = "*"
 setuptools = "<=58.2.0"
+# Dev tools
+fzf = "*"
+fd-find = "*"
+ripgrep = "*"
+vim = "*"
+git = "*"
+curl = "*"
+wget = "*"
 
 [tool.pixi.pypi-dependencies]
 colcon-runner = "*"
@@ -39,6 +47,7 @@ pytest-cov = "*"
 ruff = "*"
 pylint = "*"
 coverage = "*"
+pyyaml = "*"
 
 [project.optional-dependencies]
 test = [
@@ -58,6 +67,10 @@ build-backend = "hatchling.build"
 [tool.hatch.build]
 include = ["python_template"]
 
+# Activation scripts
+[tool.pixi.activation]
+scripts = ["activation.sh"]
+
 # Environments
 [tool.pixi.environments]
 default = { solve-group = "default" }
@@ -73,10 +86,11 @@ build-cr = "cr b"
 source-setup = "source install/setup.bash"
 
 # ROS2 Testing Tasks
+test-workspace = "pytest test/workspace -v"
 test-colcon = "colcon test"
 test-cr = "cr t"
 test-results = "colcon test-result --verbose"
-test = { depends-on = ["test-colcon", "test-results"] }
+test = { depends-on = ["test-workspace", "test-colcon", "test-results"] }
 
 # ROS2 Linting Tasks
 lint-python = "ruff check src --fix"
@@ -85,8 +99,12 @@ lint-cpp = "find src -name '*.cpp' -o -name '*.hpp' | xargs -r clang-format -i |
 ament-lint = "ament_cpplint src || true"
 lint = { depends-on = ["lint-python-format", "lint-python", "lint-cpp"] }
 
+# Setup Task
+setup = { depends-on = ["import-repos", "install-deps"] }
+
 # Combined CI Task
 ci = { depends-on = ["clean", "build", "lint", "test"] }
+ci-full = { depends-on = ["clean", "setup", "build", "lint", "test"] }
 
 # Utility Tasks
 update-lock = "pixi update && git commit -a -m'update pixi.lock' || true"

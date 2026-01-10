@@ -36,5 +36,5 @@
 		"QT_X11_NO_MITSHM": "1",
 		"LIBGL_ALWAYS_SOFTWARE": "1"
 	},
-	"postCreateCommand": "sudo chown vscode .pixi && pixi install && mkdir -p src"
+	"postCreateCommand": "sudo chown vscode .pixi && pixi install && mkdir -p src && pixi run import-repos"
 }

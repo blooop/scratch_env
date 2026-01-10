@@ -5,14 +5,17 @@ A complete ROS2 workspace setup using pixi for package management, with devconta
 ## Features
 
 - **Pixi-based package management**: Cross-platform, reproducible ROS2 environment
+- **Auto-sourced ROS2 environment**: ROS2 setup automatically sourced on shell activation
 - **Devcontainer support**: VS Code development container configuration
-- **vcstool integration**: Manage third-party repositories easily
+- **vcstool integration**: Manage third-party repositories easily (includes example_interfaces)
 - **colcon-runner**: Streamlined build, test, and clean commands
+- **Dev tools included**: fzf, fd-find, ripgrep, vim, git, curl, wget
 - **Example packages**:
   - Custom message definitions
   - Python publisher/subscriber nodes
   - C++ publisher/subscriber nodes
   - Comprehensive tests
+- **Workspace validation tests**: Verify repository imports and tool availability
 
 ## Prerequisites
 
