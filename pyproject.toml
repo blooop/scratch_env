@@ -1,38 +1,44 @@
 [project]
-name = "python_template"
-version = "0.2.0"
+name = "ros2_pixi_workspace"
+version = "0.1.0"
 authors = [{ name = "Austin Gregg-Smith", email = "blooop@gmail.com" }]
-description = "A python package template"
+description = "A pixi-based ROS2 workspace with devcontainer support"
 readme = "README.md"
 license = "MIT"
 
 dependencies = []
 
 [project.urls]
-Source = "https://github.com/blooop/python_template"
-Home = "https://github.com/blooop/python_template"
+Source = "https://github.com/blooop/scratch_env"
+Home = "https://github.com/blooop/scratch_env"
 
 [tool.pixi.workspace]
-channels = ["conda-forge"]
+channels = ["robostack-staging", "conda-forge"]
 platforms = ["linux-64"]
+preview = ["pixi-build"]
 
 [tool.pixi.dependencies]
-python = ">=3.10"
-
-[tool.pixi.feature.py310.dependencies]
-python = "3.10.*"
-[tool.pixi.feature.py311.dependencies]
 python = "3.11.*"
-[tool.pixi.feature.py312.dependencies]
-python = "3.12.*"
-[tool.pixi.feature.py313.dependencies]
-python = "3.13.*"
-
+ros-humble-ros-base = "*"
+ros-humble-ament-cmake = "*"
+ros-humble-ament-cmake-python = "*"
+colcon-common-extensions = "*"
+ros-humble-rosidl-default-generators = "*"
+ros-humble-rosidl-default-runtime = "*"
+vcstool = "*"
+compilers = "*"
+cmake = "*"
+ninja = "*"
+pkg-config = "*"
+setuptools = "<=58.2.0"
 
 [tool.pixi.pypi-dependencies]
-python_template = { path = ".", editable = true }
-numpy = "*"
-# rurun-sdk="*"
+colcon-runner = "*"
+pytest = "*"
+pytest-cov = "*"
+ruff = "*"
+pylint = "*"
+coverage = "*"
 
 [project.optional-dependencies]
 test = [
@@ -54,43 +60,38 @@ include = ["python_template"]
 
 # Environments
 [tool.pixi.environments]
-default = { features = ["test"], solve-group = "default" }
-py310 = ["py310", "test"]
-py311 = ["py311", "test"]
-py312 = ["py312", "test"]
-py313 = ["py313", "test"]
+default = { solve-group = "default" }
 
 
 [tool.pixi.tasks]
-pre-commit = "pre-commit run -a"
-pre-commit-update = "pre-commit autoupdate"
-format = "ruff format ."
-check-clean-workspace = "git diff --exit-code"
-ruff-lint = "ruff check . --fix"
-pylint = "pylint --version && echo 'running pylint...' && pylint $(git ls-files '*.py')"
-lint = { depends-on = ["ruff-lint", "pylint"] }
-style = { depends-on = ["format", "lint"] }
-commit-format = "git commit -a -m'autoformat code' || true"
-test = "pytest"
-coverage = "coverage run -m pytest && coverage xml -o coverage.xml"
-coverage-report = "coverage report -m"
+# ROS2 Build Tasks
+clean = "rm -rf build install log"
+import-repos = "vcs import src < repos.repos"
+install-deps = "rosdep install --from-paths src --ignore-src -r -y"
+build = "colcon build --symlink-install"
+build-cr = "cr b"
+source-setup = "source install/setup.bash"
+
+# ROS2 Testing Tasks
+test-colcon = "colcon test"
+test-cr = "cr t"
+test-results = "colcon test-result --verbose"
+test = { depends-on = ["test-colcon", "test-results"] }
+
+# ROS2 Linting Tasks
+lint-python = "ruff check src --fix"
+lint-python-format = "ruff format src"
+lint-cpp = "find src -name '*.cpp' -o -name '*.hpp' | xargs -r clang-format -i || true"
+ament-lint = "ament_cpplint src || true"
+lint = { depends-on = ["lint-python-format", "lint-python", "lint-cpp"] }
+
+# Combined CI Task
+ci = { depends-on = ["clean", "build", "lint", "test"] }
+
+# Utility Tasks
 update-lock = "pixi update && git commit -a -m'update pixi.lock' || true"
-push = "git push"
-update-lock-push = { depends-on = ["update-lock", "push"] }
-fix = { depends-on = ["update-lock", "format", "ruff-lint", "pre-commit"] }
-fix-commit-push = { depends-on = ["fix", "commit-format", "update-lock-push"] }
-ci-no-cover = { depends-on = ["style", "test"] }
-ci = { depends-on = [
-  "format",
-  "ruff-lint",
-  "pylint",
-  "coverage",
-  "coverage-report",
-] }
-ci-push = { depends-on = ["format", "ruff-lint", "update-lock", "ci", "push"] }
 clear-pixi = "rm -rf .pixi pixi.lock"
 setup-git-merge-driver = "git config merge.ourslock.driver true"
-update-from-template-repo = "./scripts/update_from_template.sh"
 
 [tool.pylint]
 extension-pkg-whitelist = ["numpy"]

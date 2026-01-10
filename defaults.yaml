@@ -1,0 +1,10 @@
+# Colcon defaults configuration
+# This file is used by colcon-runner (cr command)
+build:
+  symlink-install: true
+  cmake-args:
+    - "-DCMAKE_BUILD_TYPE=RelWithDebInfo"
+    - "-DCMAKE_EXPORT_COMPILE_COMMANDS=ON"
+test:
+  pytest-with-coverage: true
+  return-code-on-test-failure: true

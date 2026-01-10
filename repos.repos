@@ -1,0 +1,7 @@
+repositories:
+  # Example third-party repository
+  # Uncomment and modify to add your own repositories
+  # example_msgs:
+  #   type: git
+  #   url: https://github.com/ros2/example_interfaces.git
+  #   version: humble
