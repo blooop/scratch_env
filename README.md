@@ -1,6 +1,30 @@
 # scratch_env
 A template repo for python projects that is set up using [pixi](https://pixi.sh). 
 
+## Image → 3D-printable stamp
+
+`python_template/stamp.py` turns a black-and-white image into an STL of a
+physical stamp for applying paint. Dark regions of the image become the raised
+relief that picks up paint; the design is mirrored left-to-right so the printed
+impression reads the same as the source image. The output is a watertight,
+support-free mesh (a flat base plate with vertical-walled relief).
+
+```bash
+image-to-stamp logo.png -o logo.stl --width 60 --relief 2.5 --base 3
+```
+
+Key options: `--width` (footprint mm), `--base` (backing plate mm),
+`--relief` (how far the design rises), `--threshold` (0-255 dark/light cutoff),
+`--invert` (use light pixels as the design), `--no-mirror`, `--max-pixels`
+(downsample cap). From Python:
+
+```python
+from python_template.stamp import image_to_stamp_stl, StampConfig
+
+image_to_stamp_stl("logo.png", "logo.stl", StampConfig(width_mm=60, relief_height=2.5))
+```
+
+
 This has basic setup for
 
 * pylint
