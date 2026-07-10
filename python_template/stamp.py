@@ -53,7 +53,7 @@ def load_mask(image_path: str | Path, config: StampConfig) -> np.ndarray:
     img = Image.open(image_path).convert("L")
     img = _downsample(img, config.max_pixels)
     if config.mirror:
-        img = img.transpose(Image.FLIP_LEFT_RIGHT)
+        img = img.transpose(Image.Transpose.FLIP_LEFT_RIGHT)
     pixels = np.asarray(img, dtype=np.uint8)
     # Dark pixels (below threshold) are the design that carries paint.
     mask = pixels < config.threshold
@@ -69,7 +69,7 @@ def _downsample(img: Image.Image, max_pixels: int) -> Image.Image:
         return img
     scale = max_pixels / longest
     new_size = (max(1, round(img.width * scale)), max(1, round(img.height * scale)))
-    return img.resize(new_size, Image.LANCZOS)
+    return img.resize(new_size, Image.Resampling.LANCZOS)
 
 
 def heightmap_from_mask(mask: np.ndarray, config: StampConfig) -> np.ndarray:
@@ -206,7 +206,7 @@ def image_to_stamp_stl(
             "No design pixels found. Check the --threshold, or try --invert "
             "if your image has a light design on a dark background."
         )
-    rows, cols = mask.shape
+    cols = mask.shape[1]
     pixel_size = config.width_mm / cols
     heights = heightmap_from_mask(mask, config)
     triangles = _stamp_triangles(heights, pixel_size)

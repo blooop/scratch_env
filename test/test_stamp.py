@@ -1,4 +1,6 @@
+import shutil
 import struct
+import tempfile
 from pathlib import Path
 from unittest import TestCase
 
@@ -32,18 +34,15 @@ def _read_binary_stl(path):
 
 class TestStamp(TestCase):
     def _write_image(self, array_uint8):
-        path = Path(self.enterContext_tmp) / "img.png"
+        path = Path(self.tmpdir) / "img.png"
         Image.fromarray(array_uint8, mode="L").save(path)
         return path
 
     def setUp(self):
-        import tempfile
-
-        self._tmp = tempfile.TemporaryDirectory()
-        self.enterContext_tmp = self._tmp.name
+        self.tmpdir = tempfile.mkdtemp()
 
     def tearDown(self):
-        self._tmp.cleanup()
+        shutil.rmtree(self.tmpdir, ignore_errors=True)
 
     def test_heightmap_levels(self):
         mask = np.array([[True, False], [False, True]])
@@ -91,7 +90,7 @@ class TestStamp(TestCase):
             dtype=np.uint8,
         )
         img_path = self._write_image(array)
-        stl_path = Path(self.enterContext_tmp) / "stamp.stl"
+        stl_path = Path(self.tmpdir) / "stamp.stl"
         config = StampConfig(width_mm=30.0, base_thickness=2.0, relief_height=1.5)
         triangles = image_to_stamp_stl(img_path, stl_path, config)
 
@@ -106,7 +105,7 @@ class TestStamp(TestCase):
     def test_blank_image_raises(self):
         array = np.full((3, 3), 255, dtype=np.uint8)
         img_path = self._write_image(array)
-        stl_path = Path(self.enterContext_tmp) / "blank.stl"
+        stl_path = Path(self.tmpdir) / "blank.stl"
         with self.assertRaises(ValueError):
             image_to_stamp_stl(img_path, stl_path, StampConfig())
 
@@ -115,7 +114,7 @@ class TestStamp(TestCase):
             [[[0, 0, 0], [1, 0, 0], [0, 1, 0]]],
             dtype=np.float32,
         )
-        stl_path = Path(self.enterContext_tmp) / "tri.stl"
+        stl_path = Path(self.tmpdir) / "tri.stl"
         write_binary_stl(stl_path, tris)
         count, read_tris = _read_binary_stl(stl_path)
         self.assertEqual(count, 1)
