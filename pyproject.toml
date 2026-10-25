@@ -36,12 +36,12 @@ numpy = "*"
 
 [project.optional-dependencies]
 test = [
-  "pytest-cov>=4.1,<=6.0.0",
-  "pytest>=7.4,<=8.3.4",
-  "hypothesis>=6.104.2,<=6.124.9",
-  "ruff>=0.5.0,<=0.9.4",
-  "coverage>=7.5.4,<=7.6.10",
-  "pre-commit<=4.1.0",
+  "pytest-cov<=7.1.0,>=7.1.0",
+  "pytest<=9.1.1,>=9.1.1",
+  "hypothesis<=6.170.6,>=6.170.6",
+  "ruff<=0.17.2,>=0.17.2",
+  "coverage<=7.17.0,>=7.17.0",
+  "pre-commit<=4.7.0",
 ]
 
 [build-system]
