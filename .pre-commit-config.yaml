@@ -40,14 +40,27 @@ repos:
       # - id: trailing-whitespace
       - id: fix-byte-order-marker
 
-  # Formatter for python
-  - repo: https://github.com/astral-sh/ruff-pre-commit
-    rev: v0.8.2
+  # Ruff runs from the pixi environment, so these hooks, `pixi run lint` and CI
+  # all use the one ruff pinned in pyproject.toml. Change the version there only.
+  - repo: local
     hooks:
-
-      # Run the formatter.
-      - id: ruff-format
+      - id: ruff-check
+        name: ruff check
+        entry: pixi run --locked ruff check --fix --exit-non-zero-on-fix
+        language: system
         types_or: [ python, pyi ]
+      - id: ruff-format
+        name: ruff format
+        entry: pixi run --locked ruff format
+        language: system
+        types_or: [ python, pyi ]
+
+  # Shell script linter
+  - repo: https://github.com/shellcheck-py/shellcheck-py
+    rev: v0.11.0.1
+    hooks:
+      - id: shellcheck
+
   # Checks for spelling mistakes
   - repo: https://github.com/codespell-project/codespell
     rev: v2.3.0 
